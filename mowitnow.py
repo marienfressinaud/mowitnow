@@ -223,43 +223,47 @@ def move_mower(mower, movement, lawn_size):
     return mower
 
 
+def instructions_from_file(filename):
+    if not os.path.exists(filename):
+        return None
+
+    with open(filename, "r") as f:
+        return f.read().splitlines()
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="the file containing the instructions")
     args = parser.parse_args()
 
-    if not os.path.exists(args.filename):
+    instructions = instructions_from_file(args.filename)
+    if instructions is None:
         print(f"The file {args.filename} does not exist.")
         exit(1)
 
-    with open(args.filename, "r") as f:
-        instructions = f.read()
-
-    instruction_lines = instructions.splitlines()
-
-    if len(instruction_lines) == 1:
+    if len(instructions) == 1:
         print("Instructions for mowers are missing.")
         exit(1)
 
-    if len(instruction_lines) % 2 != 1:
+    if len(instructions) % 2 != 1:
         # Note that we are looking for an odd number because the first line is
         # for lawn size.
         print("Each mower instructions must be on 2 lines.")
         exit(1)
 
-    lawn_size = get_lawn_size(instruction_lines[0])
+    lawn_size = get_lawn_size(instructions[0])
     if lawn_size is None:
         print("The lawn width and height must be greater than 0.")
         exit(1)
 
-    number_of_mowers = (len(instruction_lines) - 1) // 2
+    number_of_mowers = (len(instructions) - 1) // 2
     for mower_number in range(1, number_of_mowers + 1):
-        mower = init_mower(instruction_lines[(mower_number * 2) - 1], lawn_size)
+        mower = init_mower(instructions[(mower_number * 2) - 1], lawn_size)
         if mower is None:
             print(f"Instructions to init mower #{mower_number} are not valid.")
             exit(1)
 
-        for movement in instruction_lines[mower_number * 2]:
+        for movement in instructions[mower_number * 2]:
             mower = move_mower(mower, movement, lawn_size)
 
         print(f"{mower[0].x} {mower[0].y} {mower[1].abbr()}")
