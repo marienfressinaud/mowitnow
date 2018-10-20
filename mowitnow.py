@@ -241,10 +241,6 @@ if __name__ == "__main__":
         print(f"The file {args.filename} does not exist.")
         exit(1)
 
-    if len(instructions) == 1:
-        print("Instructions for mowers are missing.")
-        exit(1)
-
     if len(instructions) % 2 != 1:
         # Note that we are looking for an odd number because the first line is
         # for lawn size.
