@@ -8,10 +8,24 @@ from enum import Enum
 
 
 class Direction(Enum):
-    NORTH = "N"
-    EAST = "E"
-    WEST = "W"
-    SOUTH = "S"
+    NORTH = 0
+    EAST = 1
+    SOUTH = 2
+    WEST = 3
+
+    @classmethod
+    def from_abbr(cls, abbr):
+        try:
+            value = ["N", "E", "S", "W"].index(abbr)
+            return cls(value)
+        except ValueError:
+            raise ValueError(f"{abbr} must be part of N, E, S or W")
+
+    def left(self):
+        return self.__class__((self.value - 1) % 4)
+
+    def right(self):
+        return self.__class__((self.value + 1) % 4)
 
 
 class Position:
@@ -23,6 +37,18 @@ class Position:
         if 0 <= self.x and self.x <= size[0] and 0 <= self.y and self.y <= size[1]:
             return True
         return False
+
+    def move(self, direction):
+        if direction is Direction.NORTH:
+            return Position(self.x, self.y + 1)
+        elif direction is Direction.SOUTH:
+            return Position(self.x, self.y - 1)
+        elif direction is Direction.WEST:
+            return Position(self.x - 1, self.y)
+        elif direction is Direction.EAST:
+            return Position(self.x + 1, self.y)
+        else:
+            return self
 
     def __str__(self):
         return f"({self.x}, {self.y})"
@@ -78,10 +104,10 @@ def init_mower(instruction, lawn_size):
 
     >>> lawn_size = (5, 5)
     >>> init_mower("1 2 N", lawn_size) # doctest: +ELLIPSIS
-    (<mowitnow.Position ...>, <Direction.NORTH: 'N'>)
+    (<mowitnow.Position ...>, <Direction.NORTH: 0>)
 
     >>> init_mower("5 5 S", lawn_size) # doctest: +ELLIPSIS
-    (<mowitnow.Position ...>, <Direction.SOUTH: 'S'>)
+    (<mowitnow.Position ...>, <Direction.SOUTH: 2>)
 
     >>> init_mower("", lawn_size) is None
     True
@@ -113,7 +139,7 @@ def init_mower(instruction, lawn_size):
 
     try:
         position = Position(int(items[0]), int(items[1]))
-        direction = Direction(items[2])
+        direction = Direction.from_abbr(items[2])
     except ValueError:
         return None
 
@@ -121,6 +147,77 @@ def init_mower(instruction, lawn_size):
         return None
 
     return (position, direction)
+
+
+def move_mower(mower, movement, lawn_size):
+    """Move a mower from instruction.
+
+    Examples:
+
+    >>> lawn_size = (5, 5)
+    >>> mower = (Position(1, 2), Direction.from_abbr("N"))
+
+    >>> position, direction = move_mower(mower, "G", lawn_size)
+    >>> str(position)
+    '(1, 2)'
+    >>> direction
+    <Direction.WEST: 3>
+
+    >>> position, direction = move_mower(mower, "D", lawn_size)
+    >>> str(position)
+    '(1, 2)'
+    >>> direction
+    <Direction.EAST: 1>
+
+    >>> position, direction = move_mower(mower, "A", lawn_size)
+    >>> str(position)
+    '(1, 3)'
+    >>> direction
+    <Direction.NORTH: 0>
+
+    >>> position, direction = move_mower(mower, "P", lawn_size)
+    >>> str(position)
+    '(1, 2)'
+    >>> direction
+    <Direction.NORTH: 0>
+
+    >>> position, direction = move_mower(mower, "", lawn_size)
+    >>> str(position)
+    '(1, 2)'
+    >>> direction
+    <Direction.NORTH: 0>
+
+    >>> mower = (Position(5, 5), Direction.from_abbr("N"))
+    >>> position = move_mower(mower, "A", lawn_size)[0]
+    >>> str(position)
+    '(5, 5)'
+
+    >>> mower = (Position(5, 5), Direction.from_abbr("E"))
+    >>> position = move_mower(mower, "A", lawn_size)[0]
+    >>> str(position)
+    '(5, 5)'
+
+    >>> mower = (Position(0, 0), Direction.from_abbr("S"))
+    >>> position = move_mower(mower, "A", lawn_size)[0]
+    >>> str(position)
+    '(0, 0)'
+
+    >>> mower = (Position(0, 0), Direction.from_abbr("W"))
+    >>> position = move_mower(mower, "A", lawn_size)[0]
+    >>> str(position)
+    '(0, 0)'
+    """
+    if movement == "G":
+        return (mower[0], mower[1].left())
+    if movement == "D":
+        return (mower[0], mower[1].right())
+    elif movement == "A":
+        new_position = mower[0].move(mower[1])
+        if not new_position.contained_in(lawn_size):
+            return mower
+        return (new_position, mower[1])
+
+    return mower
 
 
 if __name__ == "__main__":
@@ -160,5 +257,10 @@ if __name__ == "__main__":
         if mower is None:
             print(f"Instructions to init mower #{mower_number} are not valid.")
             exit(1)
+
+        print(f"Mower #{mower_number}: {mower[0]} {mower[1].name}")
+
+        for movement in instruction_lines[mower_number * 2]:
+            mower = move_mower(mower, movement, lawn_size)
 
         print(f"Mower #{mower_number}: {mower[0]} {mower[1].name}")

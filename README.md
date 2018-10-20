@@ -71,6 +71,27 @@ pour une pelouse de taille 5x5 :
 6 2 N
 ```
 
+La deuxième ligne de la paire correspond aux instructions envoyées à la
+tondeuse. Il s'agit d'une suite de caractères sans limite fixe. Les caractères
+possibles sont `D` (tourne de 90° vers la droite), `G` (tourne de 90° vers la
+gauche) et `A` (avance dans la direction actuelle). Exemples :
+
+```raw
+# Valeurs correctes
+
+GAGAGAGAA
+AADAADADDA
+
+# Valeurs incorrectes
+
+GAGAGAP
+AZERTY
+```
+
+Contrairement aux autres données, si des valeurs incorrectes sont entrées sur
+cette ligne, aucune erreur n'est levée. La tondeuse ne bougera tout simplement
+pas.
+
 ## Tests
 
 Les tests sont écrits avec [doctest](https://docs.python.org/3/library/doctest.html).
