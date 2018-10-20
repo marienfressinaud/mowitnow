@@ -252,6 +252,7 @@ if __name__ == "__main__":
         print("The lawn width and height must be greater than 0.")
         exit(1)
 
+    mowers = {}
     number_of_mowers = (len(instructions) - 1) // 2
     for mower_number in range(1, number_of_mowers + 1):
         mower = init_mower(instructions[(mower_number * 2) - 1], lawn_size)
@@ -259,7 +260,9 @@ if __name__ == "__main__":
             print(f"Instructions to init mower #{mower_number} are not valid.")
             exit(1)
 
-        for movement in instructions[mower_number * 2]:
-            mower = move_mower(mower, movement, lawn_size)
+        mowers[mower] = instructions[mower_number * 2]
 
+    for (mower, movements) in mowers.items():
+        for movement in movements:
+            mower = move_mower(mower, movement, lawn_size)
         print(f"{mower[0].x} {mower[0].y} {mower[1].abbr()}")
