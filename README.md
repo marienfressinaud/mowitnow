@@ -16,11 +16,13 @@ Ensuite, exécutez le programme avec :
 
 ```console
 $ ./mowitnow.py instructions.sample.txt
+1 3 N
+5 1 E
 ```
 
-Pour le moment, le programme se contente d'afficher la taille du terrain à
-tondre ainsi que l'emplacement des tondeuses ; de nouvelles fonctionnalités
-devraient arriver très prochainement !
+Le programme retourne les positions finales des différentes tondeuses qui
+auront été initialisées dans le fichier en entrée, en fonction des instructions
+qui leur seront données.
 
 ## Format du fichier en entrée
 

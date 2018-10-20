@@ -27,6 +27,9 @@ class Direction(Enum):
     def right(self):
         return self.__class__((self.value + 1) % 4)
 
+    def abbr(self):
+        return ["N", "E", "S", "W"][self.value]
+
 
 class Position:
     def __init__(self, x, y):
@@ -249,8 +252,6 @@ if __name__ == "__main__":
         print("The lawn width and height must be greater than 0.")
         exit(1)
 
-    print(f"Lawn size is {lawn_size[0]}x{lawn_size[1]}.")
-
     number_of_mowers = (len(instruction_lines) - 1) // 2
     for mower_number in range(1, number_of_mowers + 1):
         mower = init_mower(instruction_lines[(mower_number * 2) - 1], lawn_size)
@@ -258,9 +259,7 @@ if __name__ == "__main__":
             print(f"Instructions to init mower #{mower_number} are not valid.")
             exit(1)
 
-        print(f"Mower #{mower_number}: {mower[0]} {mower[1].name}")
-
         for movement in instruction_lines[mower_number * 2]:
             mower = move_mower(mower, movement, lawn_size)
 
-        print(f"Mower #{mower_number}: {mower[0]} {mower[1].name}")
+        print(f"{mower[0].x} {mower[0].y} {mower[1].abbr()}")
