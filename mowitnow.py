@@ -8,27 +8,22 @@ from enum import Enum
 
 
 class Direction(Enum):
-    NORTH = 0
-    EAST = 1
-    SOUTH = 2
-    WEST = 3
-
-    @classmethod
-    def from_abbr(cls, abbr):
-        try:
-            value = ["N", "E", "S", "W"].index(abbr)
-            return cls(value)
-        except ValueError:
-            raise ValueError(f"{abbr} must be part of N, E, S or W")
+    NORTH = "N"
+    EAST = "E"
+    SOUTH = "S"
+    WEST = "W"
 
     def left(self):
-        return self.__class__((self.value - 1) % 4)
+        return self.__turn_90(-1)
 
     def right(self):
-        return self.__class__((self.value + 1) % 4)
+        return self.__turn_90(1)
 
-    def abbr(self):
-        return ["N", "E", "S", "W"][self.value]
+    def __turn_90(self, ticks):
+        directions = [x.value for x in list(Direction)]
+        current_index = directions.index(self.value)
+        new_index = (current_index + ticks) % len(directions)
+        return self.__class__(directions[new_index])
 
 
 class Position:
@@ -107,10 +102,10 @@ def init_mower(instruction, lawn_size):
 
     >>> lawn_size = (5, 5)
     >>> init_mower("1 2 N", lawn_size) # doctest: +ELLIPSIS
-    (<mowitnow.Position ...>, <Direction.NORTH: 0>)
+    (<mowitnow.Position ...>, <Direction.NORTH: 'N'>)
 
     >>> init_mower("5 5 S", lawn_size) # doctest: +ELLIPSIS
-    (<mowitnow.Position ...>, <Direction.SOUTH: 2>)
+    (<mowitnow.Position ...>, <Direction.SOUTH: 'S'>)
 
     >>> init_mower("", lawn_size) is None
     True
@@ -142,7 +137,7 @@ def init_mower(instruction, lawn_size):
 
     try:
         position = Position(int(items[0]), int(items[1]))
-        direction = Direction.from_abbr(items[2])
+        direction = Direction(items[2])
     except ValueError:
         return None
 
@@ -158,54 +153,54 @@ def move_mower(mower, movement, lawn_size):
     Examples:
 
     >>> lawn_size = (5, 5)
-    >>> mower = (Position(1, 2), Direction.from_abbr("N"))
+    >>> mower = (Position(1, 2), Direction("N"))
 
     >>> position, direction = move_mower(mower, "G", lawn_size)
     >>> str(position)
     '(1, 2)'
     >>> direction
-    <Direction.WEST: 3>
+    <Direction.WEST: 'W'>
 
     >>> position, direction = move_mower(mower, "D", lawn_size)
     >>> str(position)
     '(1, 2)'
     >>> direction
-    <Direction.EAST: 1>
+    <Direction.EAST: 'E'>
 
     >>> position, direction = move_mower(mower, "A", lawn_size)
     >>> str(position)
     '(1, 3)'
     >>> direction
-    <Direction.NORTH: 0>
+    <Direction.NORTH: 'N'>
 
     >>> position, direction = move_mower(mower, "P", lawn_size)
     >>> str(position)
     '(1, 2)'
     >>> direction
-    <Direction.NORTH: 0>
+    <Direction.NORTH: 'N'>
 
     >>> position, direction = move_mower(mower, "", lawn_size)
     >>> str(position)
     '(1, 2)'
     >>> direction
-    <Direction.NORTH: 0>
+    <Direction.NORTH: 'N'>
 
-    >>> mower = (Position(5, 5), Direction.from_abbr("N"))
+    >>> mower = (Position(5, 5), Direction("N"))
     >>> position = move_mower(mower, "A", lawn_size)[0]
     >>> str(position)
     '(5, 5)'
 
-    >>> mower = (Position(5, 5), Direction.from_abbr("E"))
+    >>> mower = (Position(5, 5), Direction("E"))
     >>> position = move_mower(mower, "A", lawn_size)[0]
     >>> str(position)
     '(5, 5)'
 
-    >>> mower = (Position(0, 0), Direction.from_abbr("S"))
+    >>> mower = (Position(0, 0), Direction("S"))
     >>> position = move_mower(mower, "A", lawn_size)[0]
     >>> str(position)
     '(0, 0)'
 
-    >>> mower = (Position(0, 0), Direction.from_abbr("W"))
+    >>> mower = (Position(0, 0), Direction("W"))
     >>> position = move_mower(mower, "A", lawn_size)[0]
     >>> str(position)
     '(0, 0)'
@@ -265,4 +260,4 @@ if __name__ == "__main__":
     for (mower, movements) in mowers.items():
         for movement in movements:
             mower = move_mower(mower, movement, lawn_size)
-        print(f"{mower[0].x} {mower[0].y} {mower[1].abbr()}")
+        print(f"{mower[0].x} {mower[0].y} {mower[1].value}")
