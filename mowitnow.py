@@ -14,6 +14,20 @@ class Direction(Enum):
     SOUTH = "S"
 
 
+class Position:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def contained_in(self, size):
+        if 0 <= self.x and self.x <= size[0] and 0 <= self.y and self.y <= size[1]:
+            return True
+        return False
+
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+
 def get_lawn_size(instruction):
     """Return the size of the lawn from an instruction.
 
@@ -63,11 +77,11 @@ def init_mower(instruction, lawn_size):
     Examples:
 
     >>> lawn_size = (5, 5)
-    >>> init_mower("1 2 N", lawn_size)
-    (1, 2, <Direction.NORTH: 'N'>)
+    >>> init_mower("1 2 N", lawn_size) # doctest: +ELLIPSIS
+    (<mowitnow.Position ...>, <Direction.NORTH: 'N'>)
 
-    >>> init_mower("5 5 S", lawn_size)
-    (5, 5, <Direction.SOUTH: 'S'>)
+    >>> init_mower("5 5 S", lawn_size) # doctest: +ELLIPSIS
+    (<mowitnow.Position ...>, <Direction.SOUTH: 'S'>)
 
     >>> init_mower("", lawn_size) is None
     True
@@ -98,16 +112,15 @@ def init_mower(instruction, lawn_size):
         return None
 
     try:
-        x = int(items[0])
-        y = int(items[1])
+        position = Position(int(items[0]), int(items[1]))
         direction = Direction(items[2])
     except ValueError:
         return None
 
-    if x < 0 or x > lawn_size[0] or y < 0 or y > lawn_size[1]:
+    if not position.contained_in(lawn_size):
         return None
 
-    return (x, y, direction)
+    return (position, direction)
 
 
 if __name__ == "__main__":
@@ -148,4 +161,4 @@ if __name__ == "__main__":
             print(f"Instructions to init mower #{mower_number} are not valid.")
             exit(1)
 
-        print(f"Mower #{mower_number}: ({mower[0]}, {mower[1]}) {mower[2].name}")
+        print(f"Mower #{mower_number}: {mower[0]} {mower[1].name}")
