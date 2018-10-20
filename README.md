@@ -19,7 +19,8 @@ $ ./mowitnow.py instructions.sample.txt
 ```
 
 Pour le moment, le programme se contente d'afficher la taille du terrain à
-tondre ; de nouvelles fonctionnalités devraient arriver très prochainement !
+tondre ainsi que l'emplacement des tondeuses ; de nouvelles fonctionnalités
+devraient arriver très prochainement !
 
 ## Format du fichier en entrée
 
@@ -42,6 +43,32 @@ deux nombres strictement supérieurs à 0. Exemples :
 foo 5
 1
 5 5 5
+```
+
+Les lignes qui suivent sont spécifiques aux tondeuses et vont par paire. Une
+paire correspond aux instructions pour une tondeuse.
+
+La première ligne de chaque paire correspond à l'emplacement initiale de la
+tondeuse ainsi que sa direction. Elle doit contenir 2 nombres supérieurs ou
+égals à 0, et inférieurs ou égals aux dimensions de la pelouse. La direction
+est une lettre parmis `N` (nord), `E` (est), `W` (ouest) et `S` (sud). Exemples
+pour une pelouse de taille 5x5 :
+
+```raw
+# Valeurs correctes
+
+1 2 N
+5 5 S
+0 0 W
+
+# Valeurs incorrectes
+
+1
+1 N 2
+1 2 N S
+1 2 A
+-1 2 N
+6 2 N
 ```
 
 ## Tests

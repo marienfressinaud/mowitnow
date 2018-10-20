@@ -4,6 +4,15 @@
 import argparse
 import os
 
+from enum import Enum
+
+
+class Direction(Enum):
+    NORTH = "N"
+    EAST = "E"
+    WEST = "W"
+    SOUTH = "S"
+
 
 def get_lawn_size(instruction):
     """Return the size of the lawn from an instruction.
@@ -48,6 +57,59 @@ def get_lawn_size(instruction):
     return size
 
 
+def init_mower(instruction, lawn_size):
+    """Return a mower initialized from instruction.
+
+    Examples:
+
+    >>> lawn_size = (5, 5)
+    >>> init_mower("1 2 N", lawn_size)
+    (1, 2, <Direction.NORTH: 'N'>)
+
+    >>> init_mower("5 5 S", lawn_size)
+    (5, 5, <Direction.SOUTH: 'S'>)
+
+    >>> init_mower("", lawn_size) is None
+    True
+
+    >>> init_mower("1", lawn_size) is None
+    True
+
+    >>> init_mower("1 N 2", lawn_size) is None
+    True
+
+    >>> init_mower("N 1 2", lawn_size) is None
+    True
+
+    >>> init_mower("1 2 N S", lawn_size) is None
+    True
+
+    >>> init_mower("1 2 A", lawn_size) is None
+    True
+
+    >>> init_mower("-1 2 N", lawn_size) is None
+    True
+
+    >>> init_mower("1 6 N", lawn_size) is None
+    True
+    """
+    items = instruction.split(" ")
+    if len(items) != 3:
+        return None
+
+    try:
+        x = int(items[0])
+        y = int(items[1])
+        direction = Direction(items[2])
+    except ValueError:
+        return None
+
+    if x < 0 or x > lawn_size[0] or y < 0 or y > lawn_size[1]:
+        return None
+
+    return (x, y, direction)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="the file containing the instructions")
@@ -62,9 +124,28 @@ if __name__ == "__main__":
 
     instruction_lines = instructions.splitlines()
 
+    if len(instruction_lines) == 1:
+        print("Instructions for mowers are missing.")
+        exit(1)
+
+    if len(instruction_lines) % 2 != 1:
+        # Note that we are looking for an odd number because the first line is
+        # for lawn size.
+        print("Each mower instructions must be on 2 lines.")
+        exit(1)
+
     lawn_size = get_lawn_size(instruction_lines[0])
     if lawn_size is None:
         print("The lawn width and height must be greater than 0.")
         exit(1)
 
     print(f"Lawn size is {lawn_size[0]}x{lawn_size[1]}.")
+
+    number_of_mowers = (len(instruction_lines) - 1) // 2
+    for mower_number in range(1, number_of_mowers + 1):
+        mower = init_mower(instruction_lines[(mower_number * 2) - 1], lawn_size)
+        if mower is None:
+            print(f"Instructions to init mower #{mower_number} are not valid.")
+            exit(1)
+
+        print(f"Mower #{mower_number}: ({mower[0]}, {mower[1]}) {mower[2].name}")
